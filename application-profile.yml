@@ -1,0 +1,993 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Expected Partner API for application submission"
+  contact:
+    email: "dev@scoir.com"
+paths:
+  /application:
+    post:
+      summary: "submission of Scoir application profiles for application processing"
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/ApplicationProfile"
+      responses:
+        "200":
+          description: "ok"
+        "202":
+          description: "accepts"
+components:
+  schemas:
+    ApplicationProfile:
+      type: object
+      properties:
+        personalInformation:
+          type: object
+          properties:
+            applicatantId:
+              $ref: "#/components/schemas/ScoirApplicantId"
+            firstName:
+              description: the legal first name of the student
+              $ref: "#/components/schemas/Name"
+            middleName:
+              description: the legal middle name of the student
+              $ref: "#/components/schemas/Name"
+            lastName:
+              description: the legal last name of the student
+              $ref: "#/components/schemas/Name"
+            preferredName:
+              ## validation rules are different for this one, but from an api that seems icky
+              description: the preferred name of the student
+              $ref: "#/components/schemas/Name"
+            suffix:
+              $ref: "#/components/schemas/Suffix"
+            pronouns:
+              type: object
+              properties:
+                identity:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Pronoun"
+                other:
+                  type: string
+                  description: only available if "not listed" is provided
+            sex:
+              description: the legal sex of the student
+              $ref: "#/components/schemas/Sex"
+            gender:
+              type: object
+              properties:
+                identity:
+                  $ref: "#/components/schemas/Gender"
+                other:
+                  type: string
+                  description: only available if "not listed" is provided
+            email:
+              description: the personal email of the student
+              $ref: "#/components/schemas/Email"
+            schoolEmail:
+              # todo: validate this is what this really is
+              description: the email of the student at the high school
+              $ref: "#/components/schemas/Email"
+            dateOfBirth:
+              description: the birth date of the student
+              type: string
+              format: date
+            otherNames:
+              ## this looks like an array to me in the description
+              $ref: "#/components/schemas/Name"
+            militaryStatus:
+              $ref: "#/components/schemas/MilitaryStatus"
+            enrollmentStatus:
+              $ref: "#/components/schemas/EnrollmentStatus"
+            expectedHighSchoolGraduationDate:
+              type: string
+              format: date
+              description: HS graduation date or date equivalency received, estimated or actual
+            highSchoolGraduate:
+              type: boolean
+              description: Has the student graduated from high school or received high school equivalency
+            postHighSchoolCollege:
+              type: boolean
+              description: Have they taken college courses post-high school graduation
+            enrollmentYear:
+              type: number
+              minimum: 2000
+              maximum: 3000
+              example: 2022
+              description: Year they plan to begin college studies (or studying at their next college)
+            disasterImpact:
+              type: object
+              properties:
+                impact:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DisasterImpact"
+                other:
+                  type: string
+                  description: only available if "additional details provided"
+                otherPlainText:
+                  ## can we drop this?
+                  type: string
+            cboAssociations:
+              ## I dropped some fields here are they felt redundant
+              type: array
+              items:
+                type: object
+                properties:
+                  ###
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  city:
+                    type: string
+                  state:
+                    $ref: "#/components/schemas/StateProvinceTerritory"
+                  firstName:
+                    $ref: "#/components/schemas/Name"
+                  lastName:
+                    $ref: "#/components/schemas/Name"
+                  email:
+                    $ref: "#/components/schemas/Email"
+        contactInformation:
+          type: object
+          properties:
+            phone:
+              type: object
+              properties:
+                number:
+                  type: string
+                  format: phone
+                countryCode:
+                  type: string
+                type:
+                  $ref: "#/components/schemas/PhoneType"
+            country:
+              $ref: "#/components/schemas/Country"
+            homeAddress:
+              $ref: "#/components/schemas/Address"
+            mailingAddress:
+              description: only present if different than home address
+              $ref: "#/components/schemas/Address"
+        citizenship:
+          type: object
+          properties:
+            usCitizen:
+              type: boolean
+            usPermanentResident:
+              type: boolean
+            alienRegistration:
+              type: object
+              properties:
+                number:
+                  type: number
+                expiration:
+                  type: string
+                  format: date
+            additionalCitizenships:
+              type: array
+              items:
+                $ref: "#/components/schemas/Country"
+            usVisa:
+              type: object
+              properties:
+                type:
+                  type: object
+                  properties:
+                    value:
+                      $ref: "#/components/schemas/VisaType"
+                    details:
+                      description: only available if an "other" visa type was specified
+                      type: string
+                expiration:
+                  type: string
+                  format: date
+            daca:
+              ## dropped the y/n in favor of omitting this field if no
+              type: object
+              properties:
+                expirationDate:
+                  type: string
+                  format: date
+            birthCountry:
+              $ref: "#/components/schemas/Country"
+            birthState:
+              $ref: "#/components/schemas/StateProvinceTerritory"
+            birthProvince:
+              type: string
+            birthCity:
+              type: string
+        family:
+          type: object
+          properties:
+            householdSize:
+              type: number
+            parentHighestEducationLevel:
+              $ref: "#/components/schemas/EducationLevel"
+            livesWith:
+              type: object
+              properties:
+                residesWith:
+                  $ref: "#/components/schemas/ResidesWith"
+                other:
+                  type: string
+            parentalMaritalStatus:
+              type: object
+              properties:
+                maritalStatus:
+                  $ref: "#/components/schemas/MaritalStatus"
+                other:
+                  type: string
+            guardians:
+              type: array
+              maxItems: 4
+              items:
+                type: object
+                properties:
+                  deceased:
+                    type: boolean
+                  firstName:
+                    $ref: "#/components/schemas/Name"
+                  lastName:
+                    $ref: "#/components/schemas/Name"
+                  relationship:
+                    type: object
+                    properties:
+                      relation:
+                        $ref: "#/components/schemas/GuardianRelationship"
+                      other:
+                        type: string
+                  email:
+                    type: string
+                    format: email
+                  firstGeneration:
+                    type: boolean
+                  country:
+                    $ref: "#/components/schemas/Country"
+                  address:
+                    $ref: "#/components/schemas/Address"
+                  phone:
+                    ## duplicated, consider extraction
+                    type: object
+                    properties:
+                      number:
+                        type: string
+                        format: phone
+                      countryCode:
+                        type: string
+                      type:
+                        $ref: "#/components/schemas/PhoneType"
+                  educationLevel:
+                    $ref: "#/components/schemas/EducationLevel"
+                  occupation:
+                    type: string
+                  employedUniverisity:
+                    type: object
+                    properties:
+                      employmentStatus:
+                        type: string
+                        enum:
+                          - employed
+                          - retired
+                          - not employed
+                      university:
+                        type: string
+                  employer:
+                    type: string
+                  birthCountry:
+                    $ref: "#/components/schemas/Country"
+            siblings:
+              type: array
+              maxItems: 4
+              items:
+                type: object
+                properties:
+                  name:
+                    $ref: "#/components/schemas/Name"
+                  age:
+                    type: number
+                  additionalInfo:
+                    type: string
+        highSchool:
+          type: object
+          properties:
+            type:
+              $ref: "#/components/schemas/HighSchoolType"
+            attended:
+              type: boolean
+              default: true
+            name:
+              type: string
+            ceeb:
+              type: string
+            country:
+              $ref: "#/components/schemas/Country"
+            address:
+              ## may need a VerifiedAddress vs just Address
+              $ref: "#/components/schemas/Address"
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            additionalDetails:
+              type: object
+              properties:
+                intendToGraduate:
+                  type: boolean
+                equivExamDate:
+                  type: string
+                  format: date
+                currentAcademicYear:
+                  type: number
+                  minimum: 1000
+                  maximum: 9999
+                  example: 2024
+        college:
+          type: object
+          properties:
+            attended:
+              type: boolean
+            currentlyAttending:
+              type: boolean
+            creditsEarned:
+              type: number
+            creditsTaken:
+              type: number
+            disasterImpact:
+              ## copied and modified
+              type: object
+              properties:
+                impact:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/DisasterImpact"
+                other:
+                  type: string
+                  description: only available if "additional details provided"
+            colleges:
+              type: array
+              maxItems: 10
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  ceeb:
+                    type: string
+                  fice:
+                    type: string
+                  ipeds:
+                    type: string
+                  ope:
+                    type: string
+                  country:
+                    $ref: "#/components/schemas/Country"
+                  address:
+                    $ref: "#/components/schemas/Address"
+                  degreeCode:
+                    $ref: "#/components/schemas/DegreeCode"
+                  degreeExpectedDate:
+                    type: string
+                    format: date
+                  startDate:
+                    type: string
+                    format: date
+                  endDate:
+                    type: string
+                    format: date
+        feeWaiver:
+          type: object
+          properties:
+            act:
+              type: boolean
+            collegeBoard:
+              type: boolean
+            nacac:
+              type: boolean
+            freeReducedLunch:
+              type: boolean
+            participantTrio:
+              type: boolean
+            pellGrant:
+              type: boolean
+        additional:
+          type: object
+          properties:
+            additionalInformation:
+              type: string
+        testing:
+          type: object
+          properties:
+            sat:
+              type: object
+              properties:
+                taken:
+                  type: boolean
+                count:
+                  ## isn't taken derived from count?
+                  type: number
+                awaitingScores:
+                  type: boolean
+                  default: false
+                totalDate:
+                  type: string
+                  format: date
+                totalScore:
+                  ## shouldn't this be a number
+                  type: string
+                readingWritingDate:
+                  type: string
+                  format: date
+                readingWritingScore:
+                  ## shouldn't this be a number
+                  type: string
+                mathDate:
+                  type: string
+                  format: date
+                mathScore:
+                  ## shouldn't this be a number
+                  type: string
+                takeInFutureDate:
+                  ## absence of which would imply you don't plan to
+                  type: string
+                  format: date
+            act:
+              type: object
+              properties:
+                taken:
+                  type: boolean
+                count:
+                  ## isn't taken derived from count?
+                  type: number
+                awaitingScores:
+                  type: boolean
+                  default: false
+                compositionHighestDate:
+                  type: string
+                  format: date
+                compositionHighestScore:
+                  type: string
+                englishHighestDate:
+                  type: string
+                  format: date
+                englishHighestScore:
+                  type: string
+                mathHighestDate:
+                  type: string
+                  format: date
+                mathHighestScore:
+                  type: string
+                scienceHighestDate:
+                  type: string
+                  format: date
+                scienceHighestScore:
+                  type: string
+                writingHighestDate:
+                  type: string
+                  format: date
+                writingHighestScore:
+                  type: string
+            financialAid:
+              type: object
+              properties:
+                planToApplyForAid:
+                  type: boolean
+            demographics:
+              type: object
+              properties:
+                hispanic:
+                  type: boolean
+                hispanicBackground:
+                  $ref: "#/components/schemas/HispanicBackground"
+                hispanicCulture:
+                  type: string
+                ethnicity:
+                  type: object
+                  properties:
+                    value:
+                      $ref: "#/components/schemas/Ethnicity"
+                    tribalAffiliation:
+                      $ref: "#/components/schemas/TribalAffiliation"
+                    tribalEnrollment:
+                      type: boolean
+                    tribalEnrollmentNumber:
+                      type: string
+                    asianBackground:
+                      type: object
+                      properties:
+                        value:
+                          $ref: "#/components/schemas/AsianBackground"
+                        other:
+                          type: string
+                    africanAmericanBackground:
+                      type: object
+                      properties:
+                        value:
+                          $ref: "#/components/schemas/AfricanAmericanBackground"
+                        other:
+                          type: string
+                    pacificIslanderBackground:
+                      type: object
+                      properties:
+                        value:
+                          $ref: "#/components/schemas/PacificIslanderBackground"
+                        other:
+                          type: string
+                    whiteBackground:
+                      type: object
+                      properties:
+                        value:
+                          $ref: "#/components/schemas/WhiteBackground"
+                        other:
+                          type: string
+                primaryLanguage:
+                  type: object
+                  properties:
+                    value:
+                      $ref: "#/components/schemas/Language"
+                    other:
+                      type: string
+            courses:
+              type: object
+              properties:
+                underclass:
+                  type: object
+                  properties:
+                    classes:
+                      type: array
+                      maxItems: 999
+                      items:
+                        $ref: "#/components/schemas/CourseWork"
+                    explanation:
+                      type: string
+                senior:
+                  type: object
+                  properties:
+                    classes:
+                      type: array
+                      maxItems: 999
+                      items:
+                        $ref: "#/components/schemas/CourseWork"
+                    explanation:
+                      type: string
+            honorsDistinctions:
+              type: object
+              properties:
+                honors:
+                  type: array
+                  maxItems: 5
+                  items:
+                    $ref: "#/components/schemas/NotYetDefined"
+
+    ScoirApplicantId:
+      type: string
+    Name:
+      type: string
+      # maxLength: 255
+    Email:
+      type: string
+      format: email
+      # minLength: 3
+      # maxLength: 100
+    Suffix:
+      type: string
+      enum:
+        - II
+        - III
+        - IV
+        - V
+        - VI
+        - Jr
+        - Sr
+    Pronoun:
+      type: string
+      enum:
+        - he/him/his
+        - she/her/hers
+        - they/them/theirs
+        - not listed
+    Sex:
+      type: string
+      enum:
+        - male
+        - female
+    Gender:
+      type: string
+      enum:
+        - man
+        - woman
+        - nonbinary
+        - not disclosed
+        - not listed
+    MilitaryStatus:
+      type: string
+      enum:
+        - currently dependent
+        - currently serving
+        - none
+        - previously served
+    EnrollmentStatus:
+      type: string
+      enum:
+        - 2-year college
+        - 4-year college
+        - high school
+        - middle school
+        - not enrolled
+    DisasterImpact:
+      type: string
+      enum:
+        - household health
+        - guardian lost job 
+        - guardian essential worker 
+        - inconsistent internet 
+        - lost job
+        - essential worker
+        - additional details provided
+        - community curfew
+        - health
+        - home responsibilities
+        - none
+      description: >
+        options:
+          * household health - A member of my household's health was affected.
+          * guardian lost job - At least one parent/guardian lost their job or was unable to work.
+          * guardian essential worker - At least one parent/guardian was considered an essential worker.
+          * inconsistent internet - I had inconsistent or unreliable access to the Internet and/or a computer, laptop, or tablet.
+          * lost job - I lost my job or was no longer able to work.
+          * essential worker - I was considered an essential worker (e.g. healthcare worker, grocery store employee, public transportation driver, first responder, sanitation worker, etc.) and was required to work
+          * additional details provided - I would like to provide additional information.
+          * community curfew - My community had a curfew affecting the hours I could travel, use electricity, or access the Internet.
+          * health - My health was affected.
+          * home responsibilities - My home responsibilities (e.g. childcare, elder care, etc.) substantially increased or changed.
+          * none - None of these apply to me.
+    USState:
+      type: string
+      enum:
+        - Alabama
+        - Alaska
+        - Arizona
+        - Arkansas
+        - California
+        - Colorado
+        - Connecticut
+        - Delaware
+        - Florida
+        - Georgia
+        - Hawaii
+        - Idaho
+        - Illinois
+        - Indiana
+        - Iowa
+        - Kansas
+        - Kentucky
+        - Louisiana
+        - Maine
+        - Maryland
+        - Massachusetts
+        - Michigan
+        - Minnesota
+        - Mississippi
+        - Missouri
+        - Montana
+        - Nebraska
+        - Nevada
+        - New Hampshire
+        - New Jersey
+        - New Mexico
+        - New York
+        - North Carolina
+        - North Dakota
+        - Ohio
+        - Oklahoma
+        - Oregon
+        - Pennsylvania
+        - Rhode Island
+        - South Carolina
+        - South Dakota
+        - Tennessee
+        - Texas
+        - Utah
+        - Vermont
+        - Virginia
+        - Washington
+        - West Virginia
+        - Wisconsin
+        - Wyoming
+    USStateOther:
+      type: string
+      enum:
+        - Alberta
+        - American Samoa
+        - APO AA
+        - APO AE
+        - APO AP
+        - British Columbia
+        - District of Columbia
+        - Guam
+        - Manitoba
+        - Marshall Islands
+        - Micronesia
+        - New Brunswick
+        - Newfoundland and Labrador
+        - Northern Mariana Islands
+        - Northwest Territories
+        - Nova Scotia
+        - Nunavut
+        - Ontario
+        - Palau
+        - Prince Edward Island
+        - Puerto Rico
+        - Quebec
+        - Saskatchewan
+        - US Virgin Islands
+        - Yukon
+    StateProvinceTerritory:
+      oneOf:
+        - $ref: "#/components/schemas/USState"
+        - $ref: "#/components/schemas/USStateOther"
+    PhoneType:
+      type: string
+      enum:
+        - home
+        - work
+        - mobile
+    Country:
+      type: string
+      ## todo: fill in later
+      enum:
+        - filled out later
+    AddressVerification:
+      type: string
+      enum:
+        - not attempted
+        - partial
+        - does not apply
+        - failed with bypass
+        - failed
+        - verified
+      description: >
+        * not attempted - No verification attempt made (but verification does apply)
+        * partial - Partially verified with more info needed (e.g. apartment number)
+        * does not apply - Verification does not apply (either not a US address or predates verification)
+        * failed with bypass - Verification has failed but the student has bypassed
+        * failed - Failed verification
+        * verified - Verified as-is 
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+        line2:
+          type: string
+        city:
+          type: string
+        state:
+          $ref: "#/components/schemas/StateProvinceTerritory"
+        province:
+          type: string
+        postalCode:
+          type: string
+        country:
+          $ref: "#/components/schemas/Country"
+        verification:
+          $ref: "#/components/schemas/AddressVerification"
+    VisaType:
+      type: string
+      enum:
+        - A1
+        - A2
+        - A3
+        - AS
+        - B1
+        - B2
+        - B3
+        - C1
+        - C2
+        - C3
+        - D0
+        - E1
+        - E2
+        - F1
+        - F2
+        - G1
+        - G2
+        - G3
+        - G4
+        - G5
+        - H1
+        - H2
+        - H3
+        - H4
+        - HA
+        - IO
+        - J1
+        - J2
+        - K1
+        - K2
+        - L1
+        - L2
+        - M1
+        - M2
+        - N1
+        - N2
+        - N3
+        - N4
+        - N5
+        - N6
+        - N7
+        - O1
+        - P1
+        - P2
+        - P3
+        - P4
+        - PR
+        - Q1
+        - Q2
+        - Q3
+        - RF
+        - S
+        - TC
+        - TD
+        - TN
+        - TPS
+        - U-1
+        - U-2
+        - U-3
+        - U-4
+        - U-5
+        - other
+    EducationLevel:
+      type: string
+      enum:
+        - bachelor
+        - doctorate
+        - high school
+        - masters
+        - professional
+        - some college
+        - some high school
+        - associates
+        - unknown
+    ResidesWith:
+      type: string
+      enum:
+        - both parents
+        - parent/guardian 1
+        - parent/guardian 2
+        - parent/guardian 3
+        - parent/guardian 4
+        - ward of state
+    MaritalStatus:
+      type: string
+      enum:
+        - divorced
+        - domestic partners
+        - married
+        - never married
+        - other
+        - separated
+    GuardianRelationship:
+      type: string
+      enum:
+        - brother
+        - father
+        - grandfather
+        - grandmother
+        - legal guardian
+        - mother
+        - sister
+        - stepfather
+        - stepmother
+        - other
+    HighSchoolType:
+      type: string
+      enum:
+        - equivalency exam
+        - home school
+        - non-us high school
+        - not found
+        - us high school
+    DegreeCode:
+      type: string
+      enum:
+        - associates
+        - bachelors
+        - doctorate
+        - masters
+        - none
+    HispanicBackground:
+      ## unimplemented
+      type: string
+      enum:
+        - undefined
+    AsianBackground:
+      ## unimplemented
+      type: string
+      enum:
+        - undefined
+    AfricanAmericanBackground:
+      ## unimplemented
+      type: string
+      enum:
+        - undefined
+    PacificIslanderBackground:
+      ## unimplemented
+      type: string
+      enum:
+        - undefined
+    WhiteBackground:
+      ## unimplemented
+      type: string
+      enum:
+        - undefined
+    Ethnicity:
+      ## unimplemented
+      type: string
+    TribalAffiliation:
+      ## unimplemented
+      type: string
+    Language:
+      ## unimplemented
+      type: string
+    CourseWork:
+      type: object
+      properties:
+        type:
+          type: object
+          properties:
+            value:
+              $ref: "#/components/schemas/NotYetDefined"
+            other:
+              type: string
+        subjectArea:
+          $ref: "#/components/schemas/NotYetDefined"
+        code:
+          $ref: "#/components/schemas/NotYetDefined"
+        name:
+          type: string
+        title:
+          type: string
+        collegeName:
+          type: string
+        collegeCeeb:
+          type: string
+        grading:
+          type: object
+          properties:
+            scale:
+              $ref: "#/components/schemas/NotYetDefined"
+            scaleOther:
+              type: string
+            lowest:
+              type: number
+            highest:
+              type: number
+            frequency:
+              $ref: "#/components/schemas/NotYetDefined"
+        course:
+          type: object
+          properties:
+            term:
+              $ref: "#/components/schemas/NotYetDefined"
+            frequency:
+              $ref: "#/components/schemas/NotYetDefined"
+            blockScheduled:
+              type: boolean
+        session:
+          $ref: "#/components/schemas/NotYetDefined"
+        courseYear:
+          $ref: "#/components/schemas/NotYetDefined"
+        grade:
+          type: string
+        highSchoolCredit:
+          type: boolean
+    NotYetDefined:
+      type: string
