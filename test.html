@@ -1,0 +1,319 @@
+
+<h1><strong>A Technical Guide for Integrating Scoir and College Application Platforms</strong></h1>
+
+
+<hr>
+<p>
+Version 0.0.1
+</p>
+<h1>March 17, 2022</h1>
+
+
+<hr>
+<hr>
+<h2 id="overview">Overview</h2>
+
+
+<p>
+Scoir supports integrations with college Application Platforms so students can complete college applications and counselors can monitor status of their students’ applications, all from within the Scoir experience. 
+</p>
+<h2 id="audience-and-purpose">Audience and Purpose</h2>
+
+
+<p>
+This guide is intended to drive <em>technical</em> conversations between Scoir and Application Platforms to achieve specificity around each of the necessary integration points outlined in subsequent sections. 
+</p>
+<h2 id="high-level-integration-flow">High-Level Integration Flow</h2>
+
+
+<ul>
+
+<li>When a Scoir student starts a college application, Scoir will send the student’s <a href="#application-profile-specification">Application Profile</a> to the Application Platform in order to pre-fill answers to standard questions
+
+<li>The Application Platform will notify Scoir when it has processed the<a href="#application-profile-specification"> Application Profile </a>so the student can take subsequent steps toward submitting the application
+
+<li>A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
+
+<li>The Application Platform will notify Scoir when the application has been submitted
+</li>
+</ul>
+<p>
+<em>APIs and flows in the following diagram are for illustration purposes only; more details are provided in subsequent sections of this document.   </em>
+</p>
+<p>
+
+
+<img src="images/flows.jpg" width="80%" alt="flows">
+
+</p>
+<h2 id="apis">APIs</h2>
+
+
+<h3 id="application-initiation">Application Initiation</h3>
+
+
+
+<table border="1">
+  <tr>
+   <td><strong>API Provider</strong>
+   </td>
+   <td>Application Platform
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Name</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Description</strong>
+   </td>
+   <td>Enable Scoir students to initiate first-year or transfer applications from Scoir, resulting in the sharing of a standard <a href="#application-profile-specification">Application Profile</a> with the Application Platform. 
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Implementation Details</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+</table>
+
+
+<h3 id="application-status">Application Status</h3>
+
+
+
+<table>
+  <tr>
+   <td><strong>API Provider</strong>
+   </td>
+   <td>Scoir
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Name</strong>
+   </td>
+   <td>POST /applications/status
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Description</strong>
+   </td>
+   <td>Enable Scoir students and counselors to view the current state of applications from within Scoir (e.g. “in progress”, “awaiting materials”, “complete”, etc).
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Implementation Details</strong>
+   </td>
+   <td>All API details including endpoint names, security requirements and message payloads are available in Scoir’s API specification [Insert link to API Spec]
+   </td>
+  </tr>
+</table>
+
+
+<h3 id="student-application-submission-sso">Student Application Submission (SSO)</h3>
+
+
+
+<table>
+  <tr>
+   <td><strong>API Provider</strong>
+   </td>
+   <td>Application Platform
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Name</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Description</strong>
+   </td>
+   <td>Enable Scoir students to SSO into the Application Platform so they can review and submit their college application, including answering institution-specific questions and paying required fees.
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Implementation Details</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+</table>
+
+
+<h3 id="counselor-application-monitoring-sso-optional">Counselor Application Monitoring (SSO) (OPTIONAL)</h3>
+
+
+
+<table>
+  <tr>
+   <td><strong>API Provider</strong>
+   </td>
+   <td>Application Platform
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Name</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Description</strong>
+   </td>
+   <td>Enable Scoir counselors to SSO into the Application Platform so they can view application details (ex. Materials checklists, etc) for their students and provide additional documentation if needed. 
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API Implementation Details</strong>
+   </td>
+   <td>{<em>To be determined by Application Platform</em>}
+   </td>
+  </tr>
+</table>
+
+
+<h2>Frequently Asked Questions </h2>
+
+
+<h3 id="initiating-applications">Initiating Applications</h3>
+
+
+<p>
+
+    Q:	What are Scoir’s expectations of the Application Platform’s “initiate” API?
+</p>
+<p>
+
+    A:	The API should accept and process a single Scoir Student’s <a href="#application-profile-specification">Application Profile</a> in near “real time”.  Scoir expects that a student can 
+</p>
+<p>
+
+    initiate, complete and submit an application in a single interactive session.  
+</p>
+<p>
+
+    Q:	Does Scoir have an API authentication preference?
+</p>
+<p>
+
+    A:	No, the Application Platform determines authentication requirements.  Scoir will support any reasonable authentication mechanisms 
+</p>
+<p>
+
+    used to secure the API (i.e. API key, PKI, etc.).  
+</p>
+<p>
+
+    Q:	Does Scoir have an API design preference?  
+</p>
+<p>
+
+    A:	Yes, Scoir prefers REST/JSON APIs.
+</p>
+<p>
+
+    Q:	What happens when a  student updates their profile on Scoir after submitting an application?
+</p>
+<p>
+
+    A:	Scoir intends to report such changes to the Application Platform in near “real time”. It is up to the Application Platform to determine 
+</p>
+<p>
+
+    whether Scoir calls the “initiate” API endpoint again or a separate API endpoint intended solely for reporting changes to a student’s 
+</p>
+<p>
+
+    Application Profile. 
+</p>
+<h3 id="reporting-application-status">Reporting Application Status</h3>
+
+
+<p>
+
+    Q:	When should the Application Platform call the status API?
+</p>
+<p>
+
+    A:	Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform 
+</p>
+<p>
+
+    will report changes in application status as soon as they occur.  
+</p>
+<p>
+
+    Q:	What information does the Application Platform need to send to Scoir each time a status change occurs?
+</p>
+<p>
+
+    A:	Refer to the Application Status API specification [insert link] for these details
+</p>
+<p>
+	
+</p>
+<h3 id="student-application-submission">Student Application Submission</h3>
+
+
+<p>
+
+    Q: 	Must the Application Platform support the ability for a student to SSO into the Application Platform?
+</p>
+<p>
+
+    A:	Yes.  Scoir doesn’t currently provide a way for students to answer institution-specific questions or submit application payments and 
+</p>
+<p>
+
+    expects that the student will be able to SSO into the application platform, from Scoir, to complete these tasks.  	
+</p>
+<p>
+
+    Q: 	Does Scoir have a preferred method for asserting user details in support of SSO?
+</p>
+<p>
+
+    A:	Yes, Scoir prefers using JSON Web Tokens (JWT)<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup> .
+</p>
+<p>
+
+    Q:	Who determines the encryption scheme for the JWT SSO tokens?
+</p>
+<p>
+
+    A:	The Application Platform determines encryption requirements. Scoir will support any reasonable encryption approach using 
+</p>
+<p>
+
+    symmetric or asymmetric cryptography
+</p>
+<p>
+
+    Q:	Can Scoir suggest resources to learn more about how JWT SSO works?
+</p>
+<p>
+
+    A:	Yes, Zendesk has published a great article about <a href="https://support.zendesk.com/hc/en-us/articles/4408845838874-Enabling-JWT-JSON-Web-Token-single-sign-on">Enabling JWT single sign-on</a>.
+</p>
+<h1 id="application-profile-specification">Application Profile Specification</h1>
+
+
+<p>
+[insert details here]
+</p>
+
+<!-- Footnotes themselves at the bottom. -->
+
+<h2>Notes</h2>
+<div class="footnotes">
+<hr>
+<ol><li id="fn1">
+<p>
+     <a href="https://jwt.io/">https://jwt.io/</a> &nbsp;<a href="#fnref1" rev="footnote">&#8617;</a>
+
+</ol></div>
