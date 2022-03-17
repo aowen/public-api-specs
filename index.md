@@ -1,4 +1,8 @@
-## Welcome to GitHub Pages
+## Scoir's Public API Specs
+
+[Applications](applications/index.html)
+[CRM](crm/index.html)
+[Messages](messages/index.html)
 
 You can use the [editor on GitHub](https://github.com/scoir/public-api-specs/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 

@@ -1,0 +1,369 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Scoir's Public API
+  description: Scoir's way of integrating with external system to keep student records up-to-date.
+servers:
+  - url: app.scoir.io/public/dev/api
+    description: Dev server
+  - url: app.scoir.io/public/api
+    description: Production server
+security: 
+  # this is TBD
+  - AuthToken: []
+tags:
+  - name: messages
+  - name: crm
+  - name: applications
+paths:
+  #allow college to send application status changes to Scoir
+  /students/applications/status:
+    post:
+      tags:
+        - applications
+      requestBody:
+        description: Record college application details for Scoir students. 
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scoirApplications:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/scoir_application_status"
+                otherApplications:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/other_application_status"
+      responses:
+        "200":
+          description: All application updates recorded.
+          content:
+            application/json:
+              examples:
+                response:
+                  value: '"OK"'
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+  
+  # allow college to report details of students in their CRM that are also on Scoir.     
+  /students/crm-matches:
+    post:
+      tags:
+        - crm
+      requestBody:
+        description: Record details about students following a college on Scoir that are also in the college's CRM.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/matches"
+      responses:
+        "200":
+          description: Updates recorded.
+          content:
+            application/json:
+              examples:
+                response:
+                  value: '"OK"'
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"        
+  
+  #allow college to publish a message 
+  /students/message:
+    post:
+      tags:
+        - messages
+      requestBody:
+        description: Send a message to Scoir students.  
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/message"
+
+      responses:
+        "200":
+          description: Message recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500" 
+  
+
+  #allow college to see performance of their messages                  
+  /students/messages/{collegeId}/performance:
+    get:
+      tags:
+      - messages
+      description: Request performance details for all Scoir messages sent by a specific college. 
+      parameters:
+        - in: path
+          name: collegeId
+          schema:
+            type: string
+          required: true
+          description: "Unique identifer for the college."
+            
+      responses:
+        "200":
+          description: Message performance details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/message_performance"
+                
+                  
+                
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"  
+components:
+  responses:
+    "401":
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "We don't know who you are."
+                }
+    "403":
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "Forbidden to access this resource."
+                }
+    "404":
+      description: Item not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/itemNotFoundError"
+          examples:
+            response:
+              value: |-
+               {
+                  "itemsNotFound": [
+                    {
+                      "name": "scoirStudentId",
+                      "value": "12345",
+                      "message": "can't match Id."
+                    }
+                  ]
+                }
+    "500":
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "Error details"
+                }
+  securitySchemes:
+    # if we go the service account route: https://cloud.google.com/endpoints/docs/openapi/service-account-authentication
+    AuthToken:
+      type: apiKey
+      in: header
+      name: apikey
+  schemas:
+    matches:
+      type: array
+      items:
+        type: object
+        description: "Details about a student on Scoir and in the CRM."
+        required:
+          - scoirStudentId
+        properties:
+          scoirStudentId:
+            type: string
+            description: "Unique identifier assigned to a student in Scoir."
+          collegeId:
+            type: string
+            description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
+          crmRecordOriginationDate:
+            type: string
+            format: date
+            description: "The date the student's record first appeared in the college's CRM."
+          crmRecordStatus:
+            type: string
+            description: "Status of the student's record in the college's CRM, such as inquiry, prospect, applicant, etc."
+            
+    message_performance:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: " Identifier of the message"
+        studentId:
+          type: string
+          description: " Identifier of student that received the message."
+        readMessageDate:
+          type: string
+          format: date
+          description: "Date the student first read the message."
+        clickedMessageDate:
+          type: string
+          format: date
+          description: "Date the student first clicked a link in the message."
+        deletedMessageDate:
+          type: string
+          format: date
+          description: "Date the student deleted the message."
+    
+    message:
+      type: object
+      properties:
+        collegeId:
+          type: string
+          description: "Identifer of the college that is sending the message."
+        studentIds:
+          type: array
+          description: "Array of Ids for students that will receive the message."
+          items:
+            type: string
+        subject:
+          type: string
+          description: "Subject of the message."
+        body:
+          type: string
+          format: binary
+          description: "Body of the message."
+        callToAction:
+          type: object
+          properties:
+            callToActionURL:
+              type: string
+              format: uri
+            callToActionText:
+              type: string
+  
+    scoir_application_status:
+      type: object
+      description: "Details about an application originating from Scoir."
+      required:
+        - scoirApplicationId
+        - applicationCompletionStatus
+        - applicationCompletionStatusText
+      properties:
+        scoirApplicationId:
+          type: string
+          description: "Unique identifier assigned to a college application initiated on Scoir."
+        externalSSOId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
+        applicationCompletionStatus:
+          type: string
+          description: "A standard representation of the applications status in the Application Platform."
+        applicationCompletionStatusText:
+          type: string
+          description: "Human-readable description of application completion status."
+        applicationDecision:
+          type: string
+          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
+    
+    other_application_status:
+      type: object
+      description: "Details about an application not originating from Scoir."
+      required:
+        - scoirStudentId
+        - externalApplicationId
+        - collegeId
+        - applicationCompletionStatus
+      properties:
+        scoirStudentId:
+          type: string
+          description: "Unique identifier assigned to a student on Scoir."
+        externalApplicationId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform to a college application that was not initiated on Scoir."
+        externalSSOId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
+        collegeId:
+          type: string
+          description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
+        applicationCompletionStatus:
+          type: string
+          description: "Application completion status."
+        applicationCompletionStatusText:
+          type: string
+          description: "A standard representation of the applications status in the Application Platform."
+        applicationDeadline:
+          type: string
+          description: "The deadline within which the application was submitted."
+        applicationSource:
+          type: string
+          description: "The name of the system that sent the application to the Application Platform."
+        applicationDecision:
+          type: string
+          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
+          
+    #Error Messages
+    genericError:
+      properties:
+        message:
+          type: string
+          
+    itemNotFoundError:
+      properties:
+        itemsNotFound:
+          type: array
+          items:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+        information:
+          type: string
