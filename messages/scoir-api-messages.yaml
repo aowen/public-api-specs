@@ -16,72 +16,7 @@ tags:
   - name: crm
   - name: applications
 paths:
-  #allow college to send application status changes to Scoir
-  /students/applications/status:
-    post:
-      tags:
-        - applications
-      requestBody:
-        description: Record college application details for Scoir students. 
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                scoirApplications:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/scoir_application_status"
-                otherApplications:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/other_application_status"
-      responses:
-        "200":
-          description: All application updates recorded.
-          content:
-            application/json:
-              examples:
-                response:
-                  value: '"OK"'
-        "401":
-          $ref: "#/components/responses/401"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "500":
-          $ref: "#/components/responses/500"
-  
-  # allow college to report details of students in their CRM that are also on Scoir.     
-  /students/crm-matches:
-    post:
-      tags:
-        - crm
-      requestBody:
-        description: Record details about students following a college on Scoir that are also in the college's CRM.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/matches"
-      responses:
-        "200":
-          description: Updates recorded.
-          content:
-            application/json:
-              examples:
-                response:
-                  value: '"OK"'
-        "401":
-          $ref: "#/components/responses/401"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "500":
-          $ref: "#/components/responses/500"        
+      
   
   #allow college to publish a message 
   /students/message:
@@ -216,28 +151,7 @@ components:
       in: header
       name: apikey
   schemas:
-    matches:
-      type: array
-      items:
-        type: object
-        description: "Details about a student on Scoir and in the CRM."
-        required:
-          - scoirStudentId
-        properties:
-          scoirStudentId:
-            type: string
-            description: "Unique identifier assigned to a student in Scoir."
-          collegeId:
-            type: string
-            description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
-          crmRecordOriginationDate:
-            type: string
-            format: date
-            description: "The date the student's record first appeared in the college's CRM."
-          crmRecordStatus:
-            type: string
-            description: "Status of the student's record in the college's CRM, such as inquiry, prospect, applicant, etc."
-            
+   
     message_performance:
       type: object
       properties:
@@ -287,66 +201,6 @@ components:
             callToActionText:
               type: string
   
-    scoir_application_status:
-      type: object
-      description: "Details about an application originating from Scoir."
-      required:
-        - scoirApplicationId
-        - applicationCompletionStatus
-        - applicationCompletionStatusText
-      properties:
-        scoirApplicationId:
-          type: string
-          description: "Unique identifier assigned to a college application initiated on Scoir."
-        externalSSOId:
-          type: string
-          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
-        applicationCompletionStatus:
-          type: string
-          description: "A standard representation of the applications status in the Application Platform."
-        applicationCompletionStatusText:
-          type: string
-          description: "Human-readable description of application completion status."
-        applicationDecision:
-          type: string
-          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
-    
-    other_application_status:
-      type: object
-      description: "Details about an application not originating from Scoir."
-      required:
-        - scoirStudentId
-        - externalApplicationId
-        - collegeId
-        - applicationCompletionStatus
-      properties:
-        scoirStudentId:
-          type: string
-          description: "Unique identifier assigned to a student on Scoir."
-        externalApplicationId:
-          type: string
-          description: "Unique identifier assigned by the Application Platform to a college application that was not initiated on Scoir."
-        externalSSOId:
-          type: string
-          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
-        collegeId:
-          type: string
-          description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
-        applicationCompletionStatus:
-          type: string
-          description: "Application completion status."
-        applicationCompletionStatusText:
-          type: string
-          description: "A standard representation of the applications status in the Application Platform."
-        applicationDeadline:
-          type: string
-          description: "The deadline within which the application was submitted."
-        applicationSource:
-          type: string
-          description: "The name of the system that sent the application to the Application Platform."
-        applicationDecision:
-          type: string
-          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
           
     #Error Messages
     genericError:
