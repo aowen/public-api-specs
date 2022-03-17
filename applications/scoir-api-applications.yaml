@@ -20,7 +20,7 @@ paths:
       tags:
         - applications
       requestBody:
-        description: Record college application details for Scoir students. 
+        description: Allow college Application Platforms to provide Scoir with application status updates. 
         required: true
         content:
           application/json:

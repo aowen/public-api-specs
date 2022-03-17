@@ -13,8 +13,6 @@ security:
   - AuthToken: []
 tags:
   - name: messages
-  - name: crm
-  - name: applications
 paths:
       
   
