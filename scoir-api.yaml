@@ -133,6 +133,8 @@ paths:
   # allow college to report details of students in their CRM that are also on Scoir.     
   /crm-matches:
     post:
+      security:
+        - OAuth2: []
       tags:
         - "CRM API"
       summary: Matches
@@ -163,6 +165,8 @@ paths:
   #allow college to publish a message 
   /messages:
     post:
+      security:
+        - OAuth2: []
       tags:
         - "Messages API"
       summary: Messages
@@ -196,6 +200,8 @@ paths:
   #allow college to see performance of their messages                  
   /messages/{collegeId}/performance:
     get:
+      security:
+        - OAuth2: []
       tags:
       - "Messages API"
       summary: Message Performance 
@@ -233,22 +239,26 @@ paths:
           $ref: "#/components/responses/500"  
 
   /sso:
-    #this needs to be a get
-    post:
+    get:
       security:
         - ssoAuth: []
       tags:
-        - "SSO"
+        - "Single Sign-On (SSO)"
       summary: SSO
-      description: An SSO endpoint provided by the college application platform, allowing students to SSO into the platform to submit applications.  
-      requestBody:
-        description: Initiate SSO session for a Scoir user.  
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/jwt_payload"
-
+      description: An SSO endpoint provided by the college application platform, allowing Scoir users to SSO into the platform.
+      parameters:
+        - in: query
+          name: jwt_header
+          schema:
+            $ref: "#/components/schemas/jwt_header"
+          required: true
+          description: JWT header
+        - in: query
+          name: jwt_payload
+          schema:
+            $ref: "#/components/schemas/jwt_payload"
+          required: true
+          description: JWT payload
       responses:
         "200":
           description: "ok"
@@ -320,9 +330,10 @@ components:
                 }
   
   securitySchemes:
-  #Placeholder - we need to update this
+  #Placeholder - we need to update this to represent requirements of our API hosted by Google API Gateway
     OAuth2:
       type: oauth2
+      description: This needs to be updated based on Google API gateway requirements
       flows:
         authorizationCode:
           authorizationUrl: https://example.com/oauth/authorize
@@ -330,7 +341,6 @@ components:
           scopes:
             read: Grants read access
             write: Grants write access
-            admin: Grants access to admin operations
 
     ssoAuth:  
       type: http
@@ -419,24 +429,32 @@ components:
       properties:
         alg:
           type: string
+          description: The algorithm used to sign or encrypt the JWT.
         typ:
           type: string
+          description: The content that is being signed or encrypted (usually 'JWT').
 
     jwt_payload:
       type: object
       properties:
         iss:
           type: string
+          description: Issuer of the JWT
         sub:
           type: string
+          description: Subject of the JWT (the user)
         externalSSOId:
           type: string
+          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
         aud: 
           type: string
+          description: Recipient for which the JWT is intended
         nbf: 
           type: number
+          description: Time before which the JWT must not be accepted for processing
         iat: 
           type: number
+          description: Time at which the JWT was issued; can be used to determine age of the JWT
 
 
   
