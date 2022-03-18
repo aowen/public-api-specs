@@ -2,31 +2,38 @@ openapi: 3.0.0
 info:
   version: BETA
   title: Scoir's Public API Docs
+  contact:
+     name: Scoir Engineering
+     url: https://www.scoir.com/contact-us
+     email: info@scoir.com
   x-logo:
     url: "https://cdn2.hubspot.net/hubfs/2626201/Scoir_Logo_Large_blue.png"
     backgroundColor: "#FFFFFF"
     altText: "Scoir logo"
   description: |
         # Overview
-        This document outlines integrations supported by Scoir as well as requirements of interested third-party integrators.
+        This document outlines a variety of integrations supported by Scoir as well as requirements of interested third-party integrators.
 
         ## College Applications
         ### Summary
         Scoir supports integrations with college Application Platforms so students can complete college applications 
         and counselors can monitor status of their students’ applications, all from within the Scoir experience. 
         ### High-Level Information Flow
-        * When a Scoir student starts a college application, Scoir will send the student’s Application Profile to the Application Platform in order to pre-fill answers to standard questions
-        * The Application Platform will notify Scoir when it has processed the Application Profile so the student can take subsequent steps toward submitting the application
-        * A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
-        * The Application Platform will notify Scoir when the application has been submitted
+        * When a Scoir student starts a college application, Scoir will send the student’s [Application Profile](\#tag/Application-Initiation-API) to the Application Platform in order to pre-fill answers to standard questions
+        * The Application Platform will [notify Scoir](\#tag/Application-Status-API) when it has processed the [Application Profile](\#tag/Application-Initiation-API) so the student can take subsequent steps toward submitting the application
+        * A Scoir student will [single sign-on (SSO)](\#tag/Single-Sign-On-(SSO)) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
+        * The Application Platform will [notify Scoir](\#tag/Application-Status-API) when the application has been submitted
+
+
 
         ![image](flows.png)
+
         ### Frequently Asked Questions
         **Initiating Applications**
 
         | Question      | Answer |
         | ----------- | ----------- |
-        | What are Scoir’s expectations of the Application Platform’s “initiate” API?      | The API should accept and process a single Scoir Student’s Application Profile in near “real time”.  Scoir expects that a student can initiate, complete and submit an application in a single interactive session.|
+        | What are Scoir’s expectations of the Application Platform’s “initiate” API?      | The API should accept and process a single Scoir Student’s [Application Profile](\#tag/Application-Initiation-API) in near “real time”.  Scoir expects that a student can initiate, complete and submit an application in a single interactive session.|
         | Does Scoir have an API design preference?  | Yes, Scoir prefers REST/JSON APIs.|
         | Does Scoir have an API authentication preference?   | No, the Application Platform determines authentication requirements.  Scoir will support any reasonable authentication mechanisms used to secure the API (i.e. API key, PKI, etc.).|
         | What happens when a  student updates their profile on Scoir after submitting an application?| Scoir intends to report such changes to the Application Platform in near “real time”. It is up to the Application Platform to determine whether Scoir calls the “initiate” API endpoint again or a separate API endpoint intended solely for reporting changes to a student’s Applicaion Profile.  |
@@ -35,8 +42,8 @@ info:
 
           | Question      | Answer |
         | ----------- | ----------- |
-        | When should the Application Platform call the status API?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
-        |What information does the Application Platform need to send to Scoir each time a status change occurs? |Refer to the Application Status API specification for these details. |
+        | When should the Application Platform call the [status API](\#tag/Application-Status-API)?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
+        |What information does the Application Platform need to send to Scoir each time a status change occurs? |Refer to the [Application Status API](\#tag/Application-Status-API) details. |
         
         **Student Application Submission**
 
@@ -61,10 +68,6 @@ servers:
     description: Dev server
   - url: app.scoir.io/public/api
     description: Production server
-
-security: 
-   - OAuth2: []
-   - ssoAuth: []
 
 paths:
 
@@ -272,6 +275,11 @@ paths:
           $ref: "#/components/responses/404"
         "500":
           $ref: "#/components/responses/500"           
+
+security: 
+   - oAuth2: []
+   - ssoAuth: []
+   
 components:
   responses:
     "401":
@@ -331,7 +339,7 @@ components:
   
   securitySchemes:
   #Placeholder - we need to update this to represent requirements of our API hosted by Google API Gateway
-    OAuth2:
+    oAuth2:
       type: oauth2
       flows:
         authorizationCode:
@@ -359,6 +367,8 @@ components:
         description: "Details about a student on Scoir and in the CRM."
         required:
           - scoirStudentId
+          - collegeId
+          - crmOriginationDate
         properties:
           scoirStudentId:
             type: string
@@ -376,6 +386,9 @@ components:
             
     message_performance:
       type: object
+      required:
+         - messageId
+         - studentId
       properties:
         messageId:
           type: string
@@ -398,6 +411,11 @@ components:
     
     message:
       type: object
+      required:
+         - collegeId
+         - studentIds
+         - subject
+         - body
       properties:
         collegeId:
           type: string
@@ -425,6 +443,9 @@ components:
   
     jwt_header:
       type: object
+      required:
+         - alg
+         - type
       properties:
         alg:
           type: string
@@ -435,6 +456,13 @@ components:
 
     jwt_payload:
       type: object
+      required:
+         - iss
+         - sub
+         - externalSSOId
+         - aud
+         - nbf
+         - iat
       properties:
         iss:
           type: string
@@ -462,6 +490,7 @@ components:
         - scoirApplicationId
         - applicationCompletionStatus
         - applicationCompletionStatusText
+        - timestamp
       properties:
         scoirApplicationId:
           type: string
@@ -491,6 +520,8 @@ components:
         - externalApplicationId
         - collegeId
         - applicationCompletionStatus
+        - applicationCompletionStatusText
+        - timestamp
       properties:
         scoirStudentId:
           type: string
