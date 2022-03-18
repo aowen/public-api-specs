@@ -35,11 +35,18 @@ info:
 
           | Question      | Answer |
         | ----------- | ----------- |
-
+        | When should the Application Platform call the status API?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
+        |What information does the Application Platform need to send to Scoir each time a status change occurs? |Refer to the Application Status API specification for these details. |
+        
         **Student Application Submission**
 
           | Question      | Answer |
         | ----------- | ----------- |
+        |Must the Application Platform support the ability for a student to SSO into the Application Platform? |Yes.  Scoir doesn’t currently provide a way for students to answer institution-specific questions or submit application payments and expects that the student will be able to SSO into the application platform, from Scoir, to complete these tasks.   |
+        |Does Scoir have a preferred method for asserting user details in support of SSO? | Yes, Scoir prefers using [JSON Web Tokens (JWT)](https://jwt.io/)|
+        |Who determines the encryption scheme for the JWT SSO tokens? | The Application Platform determines encryption requirements. Scoir will support any reasonable encryption approach using symmetric or asymmetric cryptography|
+        | Can Scoir suggest resources to learn more about how JWT SSO works? | Yes, Zendesk published a great article about [Enabling JWT single sign-on](https://support.zendesk.com/hc/en-us/articles/4408845838874-Enabling-JWT-JSON-Web-Token-single-sign-on). |
+
 
         ## Messaging
         ### Summary
