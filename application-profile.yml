@@ -31,7 +31,7 @@ components:
         personalInformation:
           type: object
           properties:
-            applicatantId:
+            applicantId:
               $ref: "#/components/schemas/ScoirApplicantId"
             firstName:
               allOf:
