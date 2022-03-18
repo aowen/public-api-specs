@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
+  version: BETA
   title: Scoir's Public API Docs
   x-logo:
     url: "https://cdn2.hubspot.net/hubfs/2626201/Scoir_Logo_Large_blue.png"
@@ -63,58 +63,81 @@ servers:
     description: Production server
 
 security: 
-   - AuthToken: []
-tags:
-  - name: "Applications API" 
-  - name: "CRM API"
-  - name: "Messages API"
+   - OAuth2: []
+   - ssoAuth: []
 
 paths:
-  #allow college to send application status changes to Scoir
-  /applications/status:
+
+  /application:
     post:
+      security:
+        - apiKey: []
       tags:
-        - "Applications API"
+        - "Application Initiation API"
+      summary: Application Profile
+      description: API hosted by a college's Application Platform, allowing Scoir to initiate a college application by sending a student's application profile.
       requestBody:
-        description: Fill in the blanks.
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                scoirApplications:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/scoir_application_status"
-                otherApplications:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/other_application_status"
+              type: string
       responses:
         "200":
-          description: All application updates recorded.
+          description: "ok"
+        "202":
+          description: "accepts"
+
+  #allow college to send application status changes to Scoir
+  /applications/status:
+    post:
+        security:
+        - OAuth2: []
+        tags:
+          - "Application Status API"
+        summary: Application Status
+        description: API hosted by Scoir so college application platforms can report details about Scoir students' college applications.  
+        requestBody:
+          description: Fill in the blanks.
+          required: true
           content:
             application/json:
-              examples:
-                response:
-                  value: '"OK"'
-        "401":
-          $ref: "#/components/responses/401"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "500":
-          $ref: "#/components/responses/500"
+              schema:
+                type: object
+                properties:
+                  scoirApplications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/scoir_application_status"
+                  otherApplications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/other_application_status"
+        responses:
+          "200":
+            description: All application updates recorded.
+            content:
+              application/json:
+                examples:
+                  response:
+                    value: '"OK"'
+          "401":
+            $ref: "#/components/responses/401"
+          "403":
+            $ref: "#/components/responses/403"
+          "404":
+            $ref: "#/components/responses/404"
+          "500":
+            $ref: "#/components/responses/500"
   
   # allow college to report details of students in their CRM that are also on Scoir.     
   /crm-matches:
     post:
       tags:
         - "CRM API"
+      summary: Matches
+      description: API hosted by Scoir so college CRMs can provide details about students in their CRM that are also on Scoir.  
       requestBody:
-        description: Record details about students following a college on Scoir that are also in the college's CRM.
         required: true
         content:
           application/json:
@@ -142,8 +165,9 @@ paths:
     post:
       tags:
         - "Messages API"
-      requestBody:
-        description: Send a message to Scoir students.  
+      summary: Messages
+      description: "API hosted by Scoir that allows college CRMs to publish messages within Scoir." 
+      requestBody: 
         required: true
         content:
           application/json:
@@ -168,14 +192,14 @@ paths:
           $ref: "#/components/responses/404"
         "500":
           $ref: "#/components/responses/500" 
-  
 
   #allow college to see performance of their messages                  
   /messages/{collegeId}/performance:
     get:
       tags:
       - "Messages API"
-      description: Request performance details for all Scoir messages sent by a specific college. 
+      summary: Message Performance 
+      description: API hosted by Scoir that allows colleges to request performance details for their Scoir messages. 
       parameters:
         - in: path
           name: collegeId
@@ -207,6 +231,37 @@ paths:
           $ref: "#/components/responses/404"
         "500":
           $ref: "#/components/responses/500"  
+
+  /sso:
+    #this needs to be a get
+    post:
+      security:
+        - ssoAuth: []
+      tags:
+        - "SSO"
+      summary: SSO
+      description: An SSO endpoint provided by the college application platform, allowing students to SSO into the platform to submit applications.  
+      requestBody:
+        description: Initiate SSO session for a Scoir user.  
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jwt_payload"
+
+      responses:
+        "200":
+          description: "ok"
+        "202":
+          description: "accepts"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"           
 components:
   responses:
     "401":
@@ -263,11 +318,29 @@ components:
                 {
                   "message": "Error details"
                 }
+  
   securitySchemes:
-    # if we go the service account route: https://cloud.google.com/endpoints/docs/openapi/service-account-authentication
-    AuthToken:
-      type: Shared Key
+  #Placeholder - we need to update this
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations
+
+    ssoAuth:  
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    
+    apiKey:
+      type: apiKey
       in: header
+      name: apikey
 
   schemas:
     matches:
@@ -340,6 +413,32 @@ components:
               format: uri
             callToActionText:
               type: string
+  
+    jwt_header:
+      type: object
+      properties:
+        alg:
+          type: string
+        typ:
+          type: string
+
+    jwt_payload:
+      type: object
+      properties:
+        iss:
+          type: string
+        sub:
+          type: string
+        externalSSOId:
+          type: string
+        aud: 
+          type: string
+        nbf: 
+          type: number
+        iat: 
+          type: number
+
+
   
     scoir_application_status:
       type: object
