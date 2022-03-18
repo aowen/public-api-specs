@@ -17,7 +17,20 @@
     </style>
   </head>
   <body>
-    <redoc spec-url='scoir-api.yaml'></redoc>
+    <redoc 
+    	spec-url='scoir-api.yaml'
+    	theme='{
+    			"colors": 
+    				{"primary": 
+    					{ "main": "#007DAA"}
+    				}, 
+    			"rightPanel": 
+    				{ 
+    					"backgroundColor": "#007DAA"
+    				}
+    			}'
+    >
+    </redoc>
     <script src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js"> </script>
   </body>
 </html>
