@@ -909,28 +909,53 @@ components:
       enum:
         - undefined
     AsianBackground:
-      ## unimplemented
       type: string
       enum:
-        - undefined
+        - Cambodia
+        - China
+        - India
+        - Japan
+        - Korea
+        - Malaysia
+        - Other East Asia
+        - Other South Asia
+        - Other Southeast Asia
+        - Pakistan
+        - Philippines
+        - Thailand
+        - Vietnam
     AfricanAmericanBackground:
-      ## unimplemented
       type: string
       enum:
-        - undefined
+        - Afro-Latino
+        - Caribbean
+        - Other
+        - Sub-Saharan Africa
+        - U.S. / African American
     PacificIslanderBackground:
       ## unimplemented
       type: string
       enum:
-        - undefined
+        - Guam
+        - Hawaii
+        - Other Pacific Islands
+        - Samoa
     WhiteBackground:
       ## unimplemented
       type: string
       enum:
-        - undefined
+        - Europe
+        - Middle East
+        - North Africa
+        - Other
     Ethnicity:
-      ## unimplemented
       type: string
+      enum:
+      - American Indian or Alaska Native
+      - Asian
+      - Black or African American
+      - Native Hawaiian or Other Pacific Islander
+      - White
     TribalAffiliation:
       ## unimplemented
       type: string
