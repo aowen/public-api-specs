@@ -1,16 +1,48 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Scoir's Public API
+  title: Scoir's Public API Docs
+  x-logo:
+    url: "https://cdn2.hubspot.net/hubfs/2626201/Scoir_Logo_Large_blue.png"
+    backgroundColor: "#FFFFFF"
+    altText: "Scoir logo"
   description: |
-    Scoir supports a variety of integrations
-    # Integrations
-    ## Applications
-    ### FAQ
-    ## CRM Matching
-    ## FAQ
-    Scoir supports integrations with college Application Platforms so students can complete college applications and counselors can monitor status of their students’ applications, all from within the Scoir experience.
-    ## FAQ
+        # Overview
+        This document outlines integrations supported by Scoir as well as requirements of interested third-party integrators.
+        
+        ## College Applications
+        ### Summary
+        Scoir supports integrations with college Application Platforms so students can complete college applications 
+        and counselors can monitor status of their students’ applications, all from within the Scoir experience. 
+        ### High-Level Information Flow
+        * When a Scoir student starts a college application, Scoir will send the student’s Application Profile to the Application Platform in order to pre-fill answers to standard questions
+        * The Application Platform will notify Scoir when it has processed the Application Profile so the student can take subsequent steps toward submitting the application
+        * A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
+        * The Application Platform will notify Scoir when the application has been submitted
+
+        ![image](/images/flows.png)
+        ### Frequently Asked Questions
+        **Initiating Applications**
+
+        | Question      | Answer |
+        | ----------- | ----------- |
+        | What are Scoir’s expectations of the Application Platform’s “initiate” API?      | The API should accept and process a single Scoir Student’s Application Profile in near “real time”.  Scoir expects that a student can initiate, complete and submit an application in a single interactive session.|
+        | Does Scoir have an API design preference?  | Yes, Scoir prefers REST/JSON APIs.|
+        | Does Scoir have an API authentication preference?   | No, the Application Platform determines authentication requirements.  Scoir will support any reasonable authentication mechanisms used to secure the API (i.e. API key, PKI, etc.).|
+        | What happens when a  student updates their profile on Scoir after submitting an application?| Scoir intends to report such changes to the Application Platform in near “real time”. It is up to the Application Platform to determine whether Scoir calls the “initiate” API endpoint again or a separate API endpoint intended solely for reporting changes to a student’s Applicaion Profile.  |
+
+        **Reporting Application Status**
+
+        **Student Application Submission**
+
+        ## Messaging
+        ### Summary
+        Work in progress
+        ## De-Identified Record Matching
+        ### Summary
+        Work in progress
+
+        
 servers:
   - url: app.scoir.io/public/dev/api
     description: Dev server
@@ -29,10 +61,9 @@ paths:
   /applications/status:
     post:
       tags:
-        - "Application API"
+        - "Applications API"
       requestBody:
-        description: Allow colleges to report details about college applications submitted by Scoir students. 
-  
+        description: Fill in the blanks.
         required: true
         content:
           application/json:
@@ -94,7 +125,7 @@ paths:
           $ref: "#/components/responses/500"        
   
   #allow college to publish a message 
-  /message:
+  /messages:
     post:
       tags:
         - "Messages API"
