@@ -9,7 +9,7 @@ info:
   description: |
         # Overview
         This document outlines integrations supported by Scoir as well as requirements of interested third-party integrators.
-        
+
         ## College Applications
         ### Summary
         Scoir supports integrations with college Application Platforms so students can complete college applications 
@@ -333,7 +333,6 @@ components:
   #Placeholder - we need to update this to represent requirements of our API hosted by Google API Gateway
     OAuth2:
       type: oauth2
-      description: This needs to be updated based on Google API gateway requirements
       flows:
         authorizationCode:
           authorizationUrl: https://example.com/oauth/authorize
@@ -455,8 +454,6 @@ components:
         iat: 
           type: number
           description: Time at which the JWT was issued; can be used to determine age of the JWT
-
-
   
     scoir_application_status:
       type: object
