@@ -20,7 +20,7 @@ info:
         * A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
         * The Application Platform will notify Scoir when the application has been submitted
 
-        ![image](/images/flows.png)
+        ![image](./images/flows.png)
         ### Frequently Asked Questions
         **Initiating Applications**
 
@@ -32,6 +32,9 @@ info:
         | What happens when a  student updates their profile on Scoir after submitting an application?| Scoir intends to report such changes to the Application Platform in near “real time”. It is up to the Application Platform to determine whether Scoir calls the “initiate” API endpoint again or a separate API endpoint intended solely for reporting changes to a student’s Applicaion Profile.  |
 
         **Reporting Application Status**
+
+          | Question      | Answer |
+        | ----------- | ----------- |
 
         **Student Application Submission**
 
