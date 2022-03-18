@@ -1,0 +1,530 @@
+openapi: 3.0.0
+info:
+  version: BETA
+  title: Scoir's Public API Docs
+  x-logo:
+    url: "https://cdn2.hubspot.net/hubfs/2626201/Scoir_Logo_Large_blue.png"
+    backgroundColor: "#FFFFFF"
+    altText: "Scoir logo"
+  description: |
+        # Overview
+        This document outlines integrations supported by Scoir as well as requirements of interested third-party integrators.
+        
+        ## College Applications
+        ### Summary
+        Scoir supports integrations with college Application Platforms so students can complete college applications 
+        and counselors can monitor status of their students’ applications, all from within the Scoir experience. 
+        ### High-Level Information Flow
+        * When a Scoir student starts a college application, Scoir will send the student’s Application Profile to the Application Platform in order to pre-fill answers to standard questions
+        * The Application Platform will notify Scoir when it has processed the Application Profile so the student can take subsequent steps toward submitting the application
+        * A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
+        * The Application Platform will notify Scoir when the application has been submitted
+
+        ![image](flows.png)
+        ### Frequently Asked Questions
+        **Initiating Applications**
+
+        | Question      | Answer |
+        | ----------- | ----------- |
+        | What are Scoir’s expectations of the Application Platform’s “initiate” API?      | The API should accept and process a single Scoir Student’s Application Profile in near “real time”.  Scoir expects that a student can initiate, complete and submit an application in a single interactive session.|
+        | Does Scoir have an API design preference?  | Yes, Scoir prefers REST/JSON APIs.|
+        | Does Scoir have an API authentication preference?   | No, the Application Platform determines authentication requirements.  Scoir will support any reasonable authentication mechanisms used to secure the API (i.e. API key, PKI, etc.).|
+        | What happens when a  student updates their profile on Scoir after submitting an application?| Scoir intends to report such changes to the Application Platform in near “real time”. It is up to the Application Platform to determine whether Scoir calls the “initiate” API endpoint again or a separate API endpoint intended solely for reporting changes to a student’s Applicaion Profile.  |
+
+        **Reporting Application Status**
+
+          | Question      | Answer |
+        | ----------- | ----------- |
+        | When should the Application Platform call the status API?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
+        |What information does the Application Platform need to send to Scoir each time a status change occurs? |Refer to the Application Status API specification for these details. |
+        
+        **Student Application Submission**
+
+          | Question      | Answer |
+        | ----------- | ----------- |
+        |Must the Application Platform support the ability for a student to SSO into the Application Platform? |Yes.  Scoir doesn’t currently provide a way for students to answer institution-specific questions or submit application payments and expects that the student will be able to SSO into the application platform, from Scoir, to complete these tasks.   |
+        |Does Scoir have a preferred method for asserting user details in support of SSO? | Yes, Scoir prefers using [JSON Web Tokens (JWT)](https://jwt.io/)|
+        |Who determines the encryption scheme for the JWT SSO tokens? | The Application Platform determines encryption requirements. Scoir will support any reasonable encryption approach using symmetric or asymmetric cryptography|
+        | Can Scoir suggest resources to learn more about how JWT SSO works? | Yes, Zendesk published a great article about [Enabling JWT single sign-on](https://support.zendesk.com/hc/en-us/articles/4408845838874-Enabling-JWT-JSON-Web-Token-single-sign-on). |
+
+
+        ## Messaging
+        ### Summary
+        Work in progress
+        ## De-Identified Record Matching
+        ### Summary
+        Work in progress
+
+        
+servers:
+  - url: app.scoir.io/public/dev/api
+    description: Dev server
+  - url: app.scoir.io/public/api
+    description: Production server
+
+security: 
+   - OAuth2: []
+   - ssoAuth: []
+
+paths:
+
+  /application:
+    post:
+      security:
+        - apiKey: []
+      tags:
+        - "Application Initiation API"
+      summary: Application Profile
+      description: API hosted by a college's Application Platform, allowing Scoir to initiate a college application by sending a student's application profile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: "ok"
+        "202":
+          description: "accepts"
+
+  #allow college to send application status changes to Scoir
+  /applications/status:
+    post:
+        security:
+        - OAuth2: []
+        tags:
+          - "Application Status API"
+        summary: Application Status
+        description: API hosted by Scoir so college application platforms can report details about Scoir students' college applications.  
+        requestBody:
+          description: Fill in the blanks.
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scoirApplications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/scoir_application_status"
+                  otherApplications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/other_application_status"
+        responses:
+          "200":
+            description: All application updates recorded.
+            content:
+              application/json:
+                examples:
+                  response:
+                    value: '"OK"'
+          "401":
+            $ref: "#/components/responses/401"
+          "403":
+            $ref: "#/components/responses/403"
+          "404":
+            $ref: "#/components/responses/404"
+          "500":
+            $ref: "#/components/responses/500"
+  
+  # allow college to report details of students in their CRM that are also on Scoir.     
+  /crm-matches:
+    post:
+      tags:
+        - "CRM API"
+      summary: Matches
+      description: API hosted by Scoir so college CRMs can provide details about students in their CRM that are also on Scoir.  
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/matches"
+      responses:
+        "200":
+          description: Updates recorded.
+          content:
+            application/json:
+              examples:
+                response:
+                  value: '"OK"'
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"        
+  
+  #allow college to publish a message 
+  /messages:
+    post:
+      tags:
+        - "Messages API"
+      summary: Messages
+      description: "API hosted by Scoir that allows college CRMs to publish messages within Scoir." 
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/message"
+
+      responses:
+        "200":
+          description: Message recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500" 
+
+  #allow college to see performance of their messages                  
+  /messages/{collegeId}/performance:
+    get:
+      tags:
+      - "Messages API"
+      summary: Message Performance 
+      description: API hosted by Scoir that allows colleges to request performance details for their Scoir messages. 
+      parameters:
+        - in: path
+          name: collegeId
+          schema:
+            type: string
+          required: true
+          description: "Unique identifer for the college."
+            
+      responses:
+        "200":
+          description: Message performance details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/message_performance"
+                
+                  
+                
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"  
+
+  /sso:
+    #this needs to be a get
+    post:
+      security:
+        - ssoAuth: []
+      tags:
+        - "SSO"
+      summary: SSO
+      description: An SSO endpoint provided by the college application platform, allowing students to SSO into the platform to submit applications.  
+      requestBody:
+        description: Initiate SSO session for a Scoir user.  
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/jwt_payload"
+
+      responses:
+        "200":
+          description: "ok"
+        "202":
+          description: "accepts"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"           
+components:
+  responses:
+    "401":
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "We don't know who you are."
+                }
+    "403":
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "Forbidden to access this resource."
+                }
+    "404":
+      description: Item not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/itemNotFoundError"
+          examples:
+            response:
+              value: |-
+               {
+                  "itemsNotFound": [
+                    {
+                      "name": "scoirStudentId",
+                      "value": "12345",
+                      "message": "can't match Id."
+                    }
+                  ]
+                }
+    "500":
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/genericError"
+          examples:
+            response:
+              value: |-
+                {
+                  "message": "Error details"
+                }
+  
+  securitySchemes:
+  #Placeholder - we need to update this
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations
+
+    ssoAuth:  
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    
+    apiKey:
+      type: apiKey
+      in: header
+      name: apikey
+
+  schemas:
+    matches:
+      type: array
+      items:
+        type: object
+        description: "Details about a student on Scoir and in the CRM."
+        required:
+          - scoirStudentId
+        properties:
+          scoirStudentId:
+            type: string
+            description: "Unique identifier assigned to a student in Scoir."
+          collegeId:
+            type: string
+            description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
+          crmRecordOriginationDate:
+            type: string
+            format: date
+            description: "The date the student's record first appeared in the college's CRM."
+          crmRecordStatus:
+            type: string
+            description: "Status of the student's record in the college's CRM, such as inquiry, prospect, applicant, etc."
+            
+    message_performance:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: " Identifier of the message"
+        studentId:
+          type: string
+          description: " Identifier of student that received the message."
+        readMessageDate:
+          type: string
+          format: date
+          description: "Date the student first read the message."
+        clickedMessageDate:
+          type: string
+          format: date
+          description: "Date the student first clicked a link in the message."
+        deletedMessageDate:
+          type: string
+          format: date
+          description: "Date the student deleted the message."
+    
+    message:
+      type: object
+      properties:
+        collegeId:
+          type: string
+          description: "Identifer of the college that is sending the message."
+        studentIds:
+          type: array
+          description: "Array of Ids for students that will receive the message."
+          items:
+            type: string
+        subject:
+          type: string
+          description: "Subject of the message."
+        body:
+          type: string
+          format: binary
+          description: "Body of the message."
+        callToAction:
+          type: object
+          properties:
+            callToActionURL:
+              type: string
+              format: uri
+            callToActionText:
+              type: string
+  
+    jwt_header:
+      type: object
+      properties:
+        alg:
+          type: string
+        typ:
+          type: string
+
+    jwt_payload:
+      type: object
+      properties:
+        iss:
+          type: string
+        sub:
+          type: string
+        externalSSOId:
+          type: string
+        aud: 
+          type: string
+        nbf: 
+          type: number
+        iat: 
+          type: number
+
+
+  
+    scoir_application_status:
+      type: object
+      description: "Details about an application originating from Scoir."
+      required:
+        - scoirApplicationId
+        - applicationCompletionStatus
+        - applicationCompletionStatusText
+      properties:
+        scoirApplicationId:
+          type: string
+          description: "Unique identifier assigned to a college application initiated on Scoir."
+        externalSSOId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
+        applicationCompletionStatus:
+          type: string
+          description: "A standard representation of the applications status in the Application Platform."
+        applicationCompletionStatusText:
+          type: string
+          description: "Human-readable description of application completion status."
+        applicationDecision:
+          type: string
+          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
+        timestamp:
+          type: string
+          format: date-time
+          description: "Timestamp for status change."
+    
+    other_application_status:
+      type: object
+      description: "Details about an application not originating from Scoir."
+      required:
+        - scoirStudentId
+        - externalApplicationId
+        - collegeId
+        - applicationCompletionStatus
+      properties:
+        scoirStudentId:
+          type: string
+          description: "Unique identifier assigned to a student on Scoir."
+        externalApplicationId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform to a college application that was not initiated on Scoir."
+        externalSSOId:
+          type: string
+          description: "Unique identifier assigned by the Application Platform that allows user to SSO into the Application Platform."
+        collegeId:
+          type: string
+          description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
+        applicationCompletionStatus:
+          type: string
+          description: "Application completion status."
+        applicationCompletionStatusText:
+          type: string
+          description: "A standard representation of the applications status in the Application Platform."
+        applicationDeadline:
+          type: string
+          description: "The deadline within which the application was submitted."
+        applicationSource:
+          type: string
+          description: "The name of the system that sent the application to the Application Platform."
+        applicationDecision:
+          type: string
+          description: "The college's decision on an application (i.e. waitlisted, accepted, etc.)"
+        timestamp:
+          type: string
+          format: date-time
+          description: "Timestamp of status change."
+          
+    #Error Messages
+    genericError:
+      properties:
+        message:
+          type: string
+          
+    itemNotFoundError:
+      properties:
+        itemsNotFound:
+          type: array
+          items:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+        information:
+          type: string
