@@ -25,6 +25,9 @@ components:
     ApplicationProfile:
       type: object
       properties:
+        id:
+          type: string
+          description: a unique identifier to reference when communicating about this
         personalInformation:
           type: object
           properties:
