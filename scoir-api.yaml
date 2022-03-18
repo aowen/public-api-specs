@@ -20,7 +20,7 @@ info:
         * A Scoir student will single sign-on (SSO) into the Application Platform to review and submit their college application, including answering institution-specific questions and payment of any fees
         * The Application Platform will notify Scoir when the application has been submitted
 
-        ![image](./images/flows.png)
+        ![image](flows.png)
         ### Frequently Asked Questions
         **Initiating Applications**
 
@@ -37,6 +37,9 @@ info:
         | ----------- | ----------- |
 
         **Student Application Submission**
+
+          | Question      | Answer |
+        | ----------- | ----------- |
 
         ## Messaging
         ### Summary
