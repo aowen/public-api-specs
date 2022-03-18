@@ -125,9 +125,9 @@ components:
               items:
                 type: object
                 properties:
-                  ###
                   id:
                     type: number
+                    example: 56278
                   name:
                     type: string
                   city:
@@ -214,6 +214,7 @@ components:
           properties:
             householdSize:
               type: number
+              example: 3
             parentHighestEducationLevel:
               $ref: "#/components/schemas/EducationLevel"
             livesWith:
@@ -298,6 +299,7 @@ components:
                     $ref: "#/components/schemas/Name"
                   age:
                     type: number
+                    example: 17
                   additionalInfo:
                     type: string
         highSchool:
