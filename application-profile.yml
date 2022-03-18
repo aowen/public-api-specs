@@ -31,18 +31,21 @@ components:
             applicatantId:
               $ref: "#/components/schemas/ScoirApplicantId"
             firstName:
-              description: the legal first name of the student
-              $ref: "#/components/schemas/Name"
+              allOf:
+                - description: the legal first name of the student
+                - $ref: "#/components/schemas/Name"
             middleName:
-              description: the legal middle name of the student
-              $ref: "#/components/schemas/Name"
+              allOf:
+                - description: the legal middle name of the student
+                - $ref: "#/components/schemas/Name"
             lastName:
-              description: the legal last name of the student
-              $ref: "#/components/schemas/Name"
+              allOf:
+                - description: the legal last name of the student
+                - $ref: "#/components/schemas/Name"
             preferredName:
-              ## validation rules are different for this one, but from an api that seems icky
-              description: the preferred name of the student
-              $ref: "#/components/schemas/Name"
+              allOf:
+                - description: the preferred name of the student
+                - $ref: "#/components/schemas/Name"
             suffix:
               $ref: "#/components/schemas/Suffix"
             pronouns:
@@ -56,8 +59,9 @@ components:
                   type: string
                   description: only available if "not listed" is provided
             sex:
-              description: the legal sex of the student
-              $ref: "#/components/schemas/Sex"
+              allOf:
+                - description: the legal sex of the student
+                - $ref: "#/components/schemas/Sex"
             gender:
               type: object
               properties:
@@ -67,12 +71,14 @@ components:
                   type: string
                   description: only available if "not listed" is provided
             email:
-              description: the personal email of the student
-              $ref: "#/components/schemas/Email"
+              allOf:
+                - description: the personal email of the student
+                - $ref: "#/components/schemas/Email"
             schoolEmail:
               # todo: validate this is what this really is
-              description: the email of the student at the high school
-              $ref: "#/components/schemas/Email"
+              allOf:
+                - description: the email of the student at the high school
+                - $ref: "#/components/schemas/Email"
             dateOfBirth:
               description: the birth date of the student
               type: string
@@ -152,8 +158,9 @@ components:
             homeAddress:
               $ref: "#/components/schemas/Address"
             mailingAddress:
-              description: only present if different than home address
-              $ref: "#/components/schemas/Address"
+              allOf:
+                - description: only present if different than home address
+                - $ref: "#/components/schemas/Address"
         citizenship:
           type: object
           properties:
