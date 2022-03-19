@@ -111,10 +111,12 @@ paths:
                 type: object
                 properties:
                   scoirApplications:
+                    description: Applications originated on Scoir. 
                     type: array
                     items:
                       $ref: "#/components/schemas/scoir_application_status"
                   otherApplications:
+                    description: Application not originated on Scoir.  
                     type: array
                     items:
                       $ref: "#/components/schemas/other_application_status"
