@@ -33,6 +33,7 @@ info:
 
         | Question      | Answer |
         | ----------- | ----------- |
+        | Who provides the [Application Initiation API](\#tag/Application-Initiation-API)? | The Application Platform provides this API. |
         | What are Scoir’s expectations of the Application Platform’s “initiate” API?      | The API should accept and process a single Scoir Student’s [Application Profile](\#tag/Application-Initiation-API) in near “real time”.  Scoir expects that a student can initiate, complete and submit an application in a single interactive session.|
         | Does Scoir have an API design preference?  | Yes, Scoir prefers REST/JSON APIs.|
         | Does Scoir have an API authentication preference?   | No, the Application Platform determines authentication requirements.  Scoir will support any reasonable authentication mechanisms used to secure the API (i.e. API key, PKI, etc.).|
@@ -42,7 +43,8 @@ info:
 
           | Question      | Answer |
         | ----------- | ----------- |
-        | When should the Application Platform call the [status API](\#tag/Application-Status-API)?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
+        | Who provides the [Application Status API](\#tag/Application-Status-API)? | Scoir provides this API. |
+        | When should the Application Platform call the [Application Status API](\#tag/Application-Status-API)?|Scoir wants to provide a near “real-time” experience for students and counselors, so the expectation is that the Application Platform will report changes in application status as soon as they occur. |
         |What information does the Application Platform need to send to Scoir each time a status change occurs? |Refer to the [Application Status API](\#tag/Application-Status-API) details. |
         
         **Student Application Submission**
