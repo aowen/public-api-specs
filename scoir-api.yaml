@@ -86,6 +86,14 @@ paths:
           description: "ok"
         "202":
           description: "accepts"
+        "401":
+         $ref: "#/components/responses/401"
+        "403":
+         $ref: "#/components/responses/403"
+        "404":
+         $ref: "#/components/responses/404"
+        "500":
+         $ref: "#/components/responses/500"
 
   #allow college to send application status changes to Scoir
   /applications/status:
