@@ -160,6 +160,106 @@ paths:
         "500":
           $ref: "#/components/responses/500"           
 
+  # allow college to report details of students in their CRM that are also on Scoir.     
+  /students/crm-matches:
+    post:
+      tags:
+        - De-Identified Record Matching
+      requestBody:
+        description: Record details about students following a college on Scoir that are also in the college's CRM.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/matches"
+      responses:
+        "200":
+          description: Updates recorded.
+          content:
+            application/json:
+              examples:
+                response:
+                  value: '"OK"'
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"        
+  
+  #allow college to publish a message 
+  /messages:
+    post:
+      tags:
+        - Messages
+      requestBody:
+        description: Send a message to Scoir students.  
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/message"
+
+      responses:
+        "200":
+          description: Message recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500" 
+  
+ 
+  #allow college to see performance details for their messages                  
+  /messages/{collegeId}/performance:
+    get:
+      tags:
+      - Messages
+      description: Request performance details for all Scoir messages sent by a specific college. 
+      parameters:
+        - in: path
+          name: collegeId
+          schema:
+            type: string
+          required: true
+          description: "Unique identifer for the college."
+            
+      responses:
+        "200":
+          description: Message performance details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/message_performance"
+                
+                  
+                
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"  
+
 security: 
    - oAuth2: []
    - ssoAuth: []
@@ -331,6 +431,77 @@ components:
           type: string
           format: date-time
           description: "Timestamp of status change."
+
+    matches:
+      type: array
+      items:
+        type: object
+        description: "Details about a student on Scoir and in the CRM."
+        required:
+          - scoirStudentId
+        properties:
+          scoirStudentId:
+            type: string
+            description: "Unique identifier assigned to a student in Scoir."
+          collegeId:
+            type: string
+            description: "Unique identifer assigned to the college, shared between Scoir and Application Platform."
+          crmRecordOriginationDate:
+            type: string
+            format: date
+            description: "The date the student's record first appeared in the college's CRM."
+          crmRecordStatus:
+            type: string
+            description: "Status of the student's record in the college's CRM, such as inquiry, prospect, applicant, etc."
+            
+    message_performance:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: " Identifier of the message"
+        studentId:
+          type: string
+          description: " Identifier of student that received the message."
+        readMessageDate:
+          type: string
+          format: date
+          description: "Date the student first read the message."
+        clickedMessageDate:
+          type: string
+          format: date
+          description: "Date the student first clicked a link in the message."
+        deletedMessageDate:
+          type: string
+          format: date
+          description: "Date the student deleted the message."
+    
+    message:
+      type: object
+      properties:
+        collegeId:
+          type: string
+          description: "Identifer of the college that is sending the message."
+        studentIds:
+          type: array
+          description: "Array of Ids for students that will receive the message."
+          items:
+            type: string
+        subject:
+          type: string
+          description: "Subject of the message."
+        body:
+          type: string
+          format: binary
+          description: "Body of the message."
+        callToAction:
+          type: object
+          properties:
+            callToActionURL:
+              type: string
+              format: uri
+            callToActionText:
+              type: string
           
     #Error Messages
     genericError:
