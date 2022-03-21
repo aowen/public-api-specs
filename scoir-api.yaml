@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: BETA
-  title: Scoir's Public API Docs
+  title: Scoir's Public API Integration Guide
   contact:
      name: Scoir Engineering
      url: https://www.scoir.com/contact-us
@@ -81,12 +81,12 @@ paths:
         - "Application Initiation API"
       summary: Application Profile
       description: API hosted by a college's Application Platform, allowing Scoir to initiate a college application by sending a student's application profile.
-      requestBody:
+      requestBody: 
         required: true
         content:
           application/json:
             schema:
-              type: string
+                  $ref: "application-profile.yml#/components/schemas/ApplicationProfile"
       responses:
         "200":
           description: "ok"
