@@ -5,7 +5,7 @@ info:
   contact:
      name: Scoir Engineering
      url: https://www.scoir.com/contact-us
-     email: info@scoir.com
+     email: integrations@scoir.com
   x-logo:
     url: "https://cdn2.hubspot.net/hubfs/2626201/Scoir_Logo_Large_blue.png"
     backgroundColor: "#FFFFFF"
@@ -51,10 +51,12 @@ info:
 
           | Question      | Answer |
         | ----------- | ----------- |
-        |Must the Application Platform support the ability for a student to SSO into the Application Platform? |Yes.  Scoir doesn’t currently provide a way for students to answer institution-specific questions or submit application payments and expects that the student will be able to SSO into the application platform, from Scoir, to complete these tasks.   |
+        |Do students answer institution-specific questions on Scoir? | No.  Students will answer institution-specific questions from within the Application Platform |
+        |Does Scoir accept payment for applications?   | No.  Accepting payments remains the respsonsibility of the Application Platform. |
+        |How does a student get from Scoir to the Application Platform to answer institution-specific questions or submit payment? | Scoir supports the ability to initiate a single sign-on (SSO) session within the Application Platform.   |
         |Does Scoir have a preferred method for asserting user details in support of SSO? | Yes, Scoir prefers using [JSON Web Tokens (JWT)](https://jwt.io/)|
         |Who determines the encryption scheme for the JWT SSO tokens? | The Application Platform determines encryption requirements. Scoir will support any reasonable encryption approach using symmetric or asymmetric cryptography|
-        | Can Scoir suggest resources to learn more about how JWT SSO works? | Yes, Zendesk published a great article about [Enabling JWT single sign-on](https://support.zendesk.com/hc/en-us/articles/4408845838874-Enabling-JWT-JSON-Web-Token-single-sign-on). |
+        |Can Scoir suggest resources to learn more about how JWT SSO works? | Yes, Zendesk published a great article about [Enabling JWT single sign-on](https://support.zendesk.com/hc/en-us/articles/4408845838874-Enabling-JWT-JSON-Web-Token-single-sign-on). |
 
         
 servers:
@@ -139,17 +141,11 @@ paths:
       description: An SSO endpoint provided by the college application platform, allowing Scoir users to SSO into the platform.
       parameters:
         - in: query
-          name: jwt_header
+          name: jwt
           schema:
-            $ref: "#/components/schemas/jwt_header"
+            $ref: "#/components/schemas/jwt"
           required: true
-          description: JWT header
-        - in: query
-          name: jwt_payload
-          schema:
-            $ref: "#/components/schemas/jwt_payload"
-          required: true
-          description: JWT payload
+          description: JWT containing enough information to SSO the user
       responses:
         "200":
           description: "ok"
@@ -227,22 +223,11 @@ components:
       name: apikey
 
   schemas:
-    jwt_header:
+    jwt:
       type: object
       required:
          - alg
          - type
-      properties:
-        alg:
-          type: string
-          description: The algorithm used to sign or encrypt the JWT.
-        typ:
-          type: string
-          description: The content that is being signed or encrypted (usually 'JWT').
-
-    jwt_payload:
-      type: object
-      required:
          - iss
          - sub
          - externalSSOId
@@ -250,6 +235,12 @@ components:
          - nbf
          - iat
       properties:
+        alg:
+          type: string
+          description: The algorithm used to sign or encrypt the JWT.
+        typ:
+          type: string
+          description: The content that is being signed or encrypted (i.e. 'JWT').
         iss:
           type: string
           description: Issuer of the JWT
